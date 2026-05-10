@@ -112,7 +112,9 @@
         /* ── CONTENT ── */
         .app-content {
             flex: 1; overflow-y: auto; overflow-x: hidden;
-            padding-bottom: calc(var(--bottom-nav-h) + var(--safe-bottom) + 16px);
+            padding-bottom: calc(var(--bottom-nav-h) + var(--safe-bottom) + 32px);
+            overscroll-behavior-y: contain;
+            -webkit-overflow-scrolling: touch;
         }
         .tab-panel { display: none; padding: 16px; }
         .tab-panel.active { display: block; }
@@ -467,57 +469,106 @@
       <div class="section-title">Body Composition</div>
       <div class="metric-grid">
         <div class="metric-tile metric-tile-accent">
+          <div class="metric-tile-label">Weight</div>
+          <div class="metric-tile-value" id="t-weight">--<span class="metric-tile-unit"> lbs</span></div>
+          <div class="metric-tile-change" id="t-weight-c"></div>
+          <div class="metric-tile-date" id="t-weight-d"></div>
+          <div class="metric-tile-chart"><canvas id="c-weight"></canvas></div>
+        </div>
+        <div class="metric-tile metric-tile-green">
           <div class="metric-tile-label">Body Fat %</div>
           <div class="metric-tile-value" id="t-bodyfat">--</div>
           <div class="metric-tile-change" id="t-bodyfat-c"></div>
           <div class="metric-tile-date" id="t-bodyfat-d"></div>
           <div class="metric-tile-chart"><canvas id="c-bodyfat"></canvas></div>
         </div>
-        <div class="metric-tile metric-tile-green">
+        <div class="metric-tile metric-tile-orange">
           <div class="metric-tile-label">Lean Mass</div>
           <div class="metric-tile-value" id="t-lean">--<span class="metric-tile-unit"> lbs</span></div>
           <div class="metric-tile-change" id="t-lean-c"></div>
           <div class="metric-tile-date" id="t-lean-d"></div>
           <div class="metric-tile-chart"><canvas id="c-lean"></canvas></div>
         </div>
-        <div class="metric-tile metric-tile-orange">
+        <div class="metric-tile metric-tile-purple">
           <div class="metric-tile-label">Visceral Fat</div>
           <div class="metric-tile-value" id="t-visceral">--</div>
           <div class="metric-tile-change" id="t-visceral-c"></div>
           <div class="metric-tile-date" id="t-visceral-d"></div>
           <div class="metric-tile-chart"><canvas id="c-visceral"></canvas></div>
         </div>
-        <div class="metric-tile metric-tile-purple">
+        <div class="metric-tile metric-tile-accent">
           <div class="metric-tile-label">Waist</div>
           <div class="metric-tile-value" id="t-waist">--<span class="metric-tile-unit">"</span></div>
           <div class="metric-tile-change" id="t-waist-c"></div>
           <div class="metric-tile-date" id="t-waist-d"></div>
           <div class="metric-tile-chart"><canvas id="c-waist"></canvas></div>
         </div>
+        <div class="metric-tile metric-tile-green">
+          <div class="metric-tile-label">WHtR</div>
+          <div class="metric-tile-value" id="t-whtr">--</div>
+          <div class="metric-tile-change" id="t-whtr-c"></div>
+          <div class="metric-tile-date" id="t-whtr-d"></div>
+          <div class="metric-tile-chart"><canvas id="c-whtr"></canvas></div>
+        </div>
+        <div class="metric-tile metric-tile-orange">
+          <div class="metric-tile-label">Metabolic Age</div>
+          <div class="metric-tile-value" id="t-metage">--</div>
+          <div class="metric-tile-change" id="t-metage-c"></div>
+          <div class="metric-tile-date" id="t-metage-d"></div>
+          <div class="metric-tile-chart"><canvas id="c-metage"></canvas></div>
+        </div>
       </div>
 
       <div class="section-title">Vitals & Activity</div>
       <div class="metric-grid">
         <div class="metric-tile metric-tile-accent">
+          <div class="metric-tile-label">VO2 Max</div>
+          <div class="metric-tile-value" id="t-vo2">--</div>
+          <div class="metric-tile-change" id="t-vo2-c"></div>
+          <div class="metric-tile-date" id="t-vo2-d"></div>
+          <div class="metric-tile-chart"><canvas id="c-vo2"></canvas></div>
+        </div>
+        <div class="metric-tile metric-tile-green">
           <div class="metric-tile-label">HRV</div>
           <div class="metric-tile-value" id="t-hrv">--<span class="metric-tile-unit"> ms</span></div>
           <div class="metric-tile-change" id="t-hrv-c"></div>
           <div class="metric-tile-date" id="t-hrv-d"></div>
           <div class="metric-tile-chart"><canvas id="c-hrv"></canvas></div>
         </div>
-        <div class="metric-tile metric-tile-green">
+        <div class="metric-tile metric-tile-orange">
+          <div class="metric-tile-label">Steps</div>
+          <div class="metric-tile-value" id="t-steps">--</div>
+          <div class="metric-tile-change" id="t-steps-c"></div>
+          <div class="metric-tile-date" id="t-steps-d"></div>
+          <div class="metric-tile-chart"><canvas id="c-steps"></canvas></div>
+        </div>
+        <div class="metric-tile metric-tile-purple">
           <div class="metric-tile-label">Exercise Min</div>
           <div class="metric-tile-value" id="t-exercise">--</div>
           <div class="metric-tile-change" id="t-exercise-c"></div>
           <div class="metric-tile-date" id="t-exercise-d"></div>
           <div class="metric-tile-chart"><canvas id="c-exercise"></canvas></div>
         </div>
-        <div class="metric-tile metric-tile-orange">
+        <div class="metric-tile metric-tile-accent">
+          <div class="metric-tile-label">Sleep</div>
+          <div class="metric-tile-value" id="t-sleep">--</div>
+          <div class="metric-tile-change" id="t-sleep-c"></div>
+          <div class="metric-tile-date" id="t-sleep-d"></div>
+          <div class="metric-tile-chart"><canvas id="c-sleep"></canvas></div>
+        </div>
+        <div class="metric-tile metric-tile-green">
           <div class="metric-tile-label">Sleep Score</div>
           <div class="metric-tile-value" id="t-sleepscore">--</div>
           <div class="metric-tile-change" id="t-sleepscore-c"></div>
           <div class="metric-tile-date" id="t-sleepscore-d"></div>
           <div class="metric-tile-chart"><canvas id="c-sleepscore"></canvas></div>
+        </div>
+        <div class="metric-tile metric-tile-orange">
+          <div class="metric-tile-label">Distance</div>
+          <div class="metric-tile-value" id="t-distance">--<span class="metric-tile-unit"> mi</span></div>
+          <div class="metric-tile-change" id="t-distance-c"></div>
+          <div class="metric-tile-date" id="t-distance-d"></div>
+          <div class="metric-tile-chart"><canvas id="c-distance"></canvas></div>
         </div>
         <div class="metric-tile metric-tile-purple">
           <div class="metric-tile-label">Protein</div>
@@ -525,38 +576,6 @@
           <div class="metric-tile-change" id="t-protein-c"></div>
           <div class="metric-tile-date" id="t-protein-d"></div>
           <div class="metric-tile-chart"><canvas id="c-protein"></canvas></div>
-        </div>
-      </div>
-
-      <div class="section-title">Other Metrics</div>
-      <div class="metric-grid">
-        <div class="metric-tile metric-tile-accent">
-          <div class="metric-tile-label">WHtR</div>
-          <div class="metric-tile-value" id="t-whtr">--</div>
-          <div class="metric-tile-change" id="t-whtr-c"></div>
-          <div class="metric-tile-date" id="t-whtr-d"></div>
-          <div class="metric-tile-chart"><canvas id="c-whtr"></canvas></div>
-        </div>
-        <div class="metric-tile metric-tile-green">
-          <div class="metric-tile-label">Metabolic Age</div>
-          <div class="metric-tile-value" id="t-metage">--</div>
-          <div class="metric-tile-change" id="t-metage-c"></div>
-          <div class="metric-tile-date" id="t-metage-d"></div>
-          <div class="metric-tile-chart"><canvas id="c-metage"></canvas></div>
-        </div>
-        <div class="metric-tile metric-tile-orange">
-          <div class="metric-tile-label">Distance</div>
-          <div class="metric-tile-value" id="t-distance">--<span class="metric-tile-unit"> mi</span></div>
-          <div class="metric-tile-change" id="t-distance-c"></div>
-          <div class="metric-tile-date" id="t-distance-d"></div>
-          <div class="metric-tile-chart"><canvas id="c-distance"></canvas></div>
-        </div>
-        <div class="metric-tile metric-tile-purple">
-          <div class="metric-tile-label">Distance</div>
-          <div class="metric-tile-value" id="t-distance">--<span class="metric-tile-unit"> mi</span></div>
-          <div class="metric-tile-change" id="t-distance-c"></div>
-          <div class="metric-tile-date" id="t-distance-d"></div>
-          <div class="metric-tile-chart"><canvas id="c-distance"></canvas></div>
         </div>
       </div>
 
@@ -5424,6 +5443,14 @@ function updateOverview() {
   }
 
   // Body comp tiles
+  const rW2 = mostRecent(validData,'weight');
+  const pW2 = rW2 ? validData[validData.indexOf(rW2)-1] : null;
+  if (rW2?.weight) {
+    document.getElementById('t-weight').innerHTML = rW2.weight + '<span class="metric-tile-unit"> lbs</span>';
+    document.getElementById('t-weight-c').innerHTML = fmtChange(rW2.weight,pW2?.weight,true)+' '+fmtFromStart(rW2.weight,fW?.weight,true,' lbs');
+    document.getElementById('t-weight-d').textContent = `as of ${fmtDate(rW2.date)}`;
+    renderSpark('c-weight', periodData.map(d=>d.weight), '#4d9de0');
+  }
   const rBF = mostRecent(validData,'bodyFat');
   const pBF = rBF ? validData[validData.indexOf(rBF)-1] : null;
   const fBF = validData.find(d=>d.bodyFat);
@@ -5462,6 +5489,15 @@ function updateOverview() {
   }
 
   // Vitals & Activity
+  const rVO2 = mostRecent(validData,'vo2max');
+  const pVO2 = rVO2 ? validData[validData.indexOf(rVO2)-1] : null;
+  const fVO2 = validData.find(d=>d.vo2max);
+  if (rVO2?.vo2max) {
+    document.getElementById('t-vo2').textContent = rVO2.vo2max;
+    document.getElementById('t-vo2-c').innerHTML = fmtChange(rVO2.vo2max,pVO2?.vo2max,false)+' '+fmtFromStart(rVO2.vo2max,fVO2?.vo2max,false);
+    document.getElementById('t-vo2-d').textContent = `as of ${fmtDate(rVO2.date)}`;
+    renderSpark('c-vo2', periodData.map(d=>d.vo2max), '#4d9de0');
+  }
   const rHRV = mostRecent(validData,'hrv');
   const pHRV = rHRV ? validData[validData.indexOf(rHRV)-1] : null;
   const fHRV = validData.find(d=>d.hrv);
@@ -5479,6 +5515,25 @@ function updateOverview() {
     document.getElementById('t-exercise-c').innerHTML = fmtChange(rEx.exerciseMinutes,pEx?.exerciseMinutes,false)+' '+fmtFromStart(rEx.exerciseMinutes,fEx?.exerciseMinutes,false,' min');
     document.getElementById('t-exercise-d').textContent = `as of ${fmtDate(rEx.date)}`;
     renderSpark('c-exercise', periodData.map(d=>d.exerciseMinutes), '#3fb950');
+  }
+  const rSteps = mostRecent(validData,'steps');
+  const pSteps = rSteps ? validData[validData.indexOf(rSteps)-1] : null;
+  const fSteps = validData.find(d=>d.steps);
+  if (rSteps?.steps) {
+    document.getElementById('t-steps').textContent = rSteps.steps.toLocaleString();
+    document.getElementById('t-steps-c').innerHTML = fmtChange(rSteps.steps,pSteps?.steps,false)+' '+fmtFromStart(rSteps.steps,fSteps?.steps,false,' steps');
+    document.getElementById('t-steps-d').textContent = `as of ${fmtDate(rSteps.date)}`;
+    renderSpark('c-steps', periodData.map(d=>d.steps), '#e07b4d');
+  }
+  const rSleep = mostRecent(validData,'sleepHours');
+  const pSleep = rSleep ? validData[validData.indexOf(rSleep)-1] : null;
+  const fSleep = validData.find(d=>d.sleepHours);
+  if (rSleep?.sleepHours) {
+    const h=Math.floor(rSleep.sleepHours), m=Math.round((rSleep.sleepHours-h)*60);
+    document.getElementById('t-sleep').textContent = `${h}h ${m}m`;
+    document.getElementById('t-sleep-c').innerHTML = fmtChange(rSleep.sleepHours,pSleep?.sleepHours,false)+' '+fmtFromStart(rSleep.sleepHours,fSleep?.sleepHours,false,' hrs');
+    document.getElementById('t-sleep-d').textContent = `as of ${fmtDate(rSleep.date)}`;
+    renderSpark('c-sleep', periodData.map(d=>d.sleepHours), '#4d9de0');
   }
   const rSS = mostRecent(validData,'sleepScore');
   const pSS = rSS ? validData[validData.indexOf(rSS)-1] : null;
@@ -5720,10 +5775,10 @@ function updateDataTable() {
     const idx=healthData.indexOf(entry);
     const dt=parseLocalDate(entry.date).toLocaleDateString();
     return `<tr>
-      <td>${dt}</td>
-      <td style="text-align:right">
+      <td style="display:flex;align-items:center;gap:8px">
         <button class="tbl-btn tbl-btn-edit" onclick="editEntry('${entry.date}')">✏️</button>
         <button class="tbl-btn tbl-btn-del" onclick="deleteEntry(${idx})">🗑</button>
+        <span>${dt}</span>
       </td>
     </tr>`;
   }).join('');
