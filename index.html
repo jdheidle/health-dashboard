@@ -5321,11 +5321,112 @@ auth.onAuthStateChanged(user => {
 });
 
 // ── FIREBASE DATA ──
+
+// Map HAE metric names -> dashboard keys.
+// Direct mappings (single 'qty' field on the HAE record):
+const HAE_DIRECT_MAP = {
+  weight_body_mass: 'weight',
+  body_fat_percentage: 'bodyFat',
+  lean_body_mass: 'leanMass',
+  waist_circumference: 'waist',
+  step_count: 'steps',
+  walking_running_distance: 'distance',
+  vo2_max: 'vo2max',
+  apple_exercise_time: 'exerciseMinutes',
+  heart_rate_variability: 'hrv',
+  protein: 'protein',
+};
+
+// Convert the /healthData/raw subtree from HAE into the array shape the
+// dashboard already understands ({date, weight, bodyFat, ...}).
+// Returns an array sorted by date ascending. Skips dates with no usable values.
+function transformHaeData(rawByDate) {
+  if (!rawByDate || typeof rawByDate !== 'object') return [];
+  const HEIGHT_INCHES = 77; // mirrors saveDailyEntry()
+  const out = [];
+  for (const date of Object.keys(rawByDate)) {
+    const dayMetrics = rawByDate[date];
+    if (!dayMetrics || typeof dayMetrics !== 'object') continue;
+    const entry = { date };
+
+    // Direct single-value mappings
+    for (const haeName in HAE_DIRECT_MAP) {
+      const dashKey = HAE_DIRECT_MAP[haeName];
+      const m = dayMetrics[haeName];
+      if (m && m.qty != null) entry[dashKey] = m.qty;
+    }
+
+    // Sleep: HAE sends totalSleep/deep/rem/etc. — dashboard wants sleepHours
+    const sleep = dayMetrics.sleep_analysis;
+    if (sleep && sleep.totalSleep != null) {
+      entry.sleepHours = sleep.totalSleep;
+    }
+
+    // Blood pressure: HAE sends systolic/diastolic on one record
+    const bp = dayMetrics.blood_pressure;
+    if (bp) {
+      if (bp.systolic != null) entry.sysBP = bp.systolic;
+      if (bp.diastolic != null) entry.diaBP = bp.diastolic;
+    }
+
+    // Derived: WHtR from waist, mirroring manual entry logic
+    if (entry.waist != null) entry.whr = entry.waist / HEIGHT_INCHES;
+
+    // Drop the entry if no actual metrics came through (just {date})
+    if (Object.keys(entry).length > 1) out.push(entry);
+  }
+  out.sort((a, b) => new Date(a.date) - new Date(b.date));
+  return out;
+}
+
+// Merge manual data with HAE data. Manual always wins per metric.
+// Both inputs are arrays of {date, ...metrics}. Output is the same shape.
+function mergeManualWithHae(manualArr, haeArr) {
+  const byDate = new Map();
+  // Seed with HAE data first
+  for (const e of haeArr) {
+    byDate.set(e.date, { ...e, _source: 'hae' });
+  }
+  // Manual entries override field-by-field where non-null
+  for (const m of manualArr) {
+    const existing = byDate.get(m.date);
+    if (!existing) {
+      byDate.set(m.date, { ...m, _source: 'manual' });
+      continue;
+    }
+    // Field-level merge: manual wins where it has a non-null value
+    const merged = { ...existing };
+    for (const k in m) {
+      if (k === 'date') continue;
+      if (m[k] != null && m[k] !== '') merged[k] = m[k];
+    }
+    merged._source = 'merged';
+    byDate.set(m.date, merged);
+  }
+  return Array.from(byDate.values()).sort(
+    (a, b) => new Date(a.date) - new Date(b.date)
+  );
+}
+
 async function loadDataFromFirebase() {
   if (!currentUser) return;
+  // Manual entries (existing path, unchanged)
   const snap = await database.ref(`users/${currentUser.uid}/healthData`).once('value');
   const fbData = snap.val();
-  healthData = fbData ? fbData : [...embeddedHealthData];
+  const manualData = fbData ? fbData : [...embeddedHealthData];
+
+  // HAE auto-imported data (new path written by Cloud Function)
+  let haeData = [];
+  try {
+    const haeSnap = await database.ref('healthData/raw').once('value');
+    haeData = transformHaeData(haeSnap.val());
+    console.log(`Loaded ${haeData.length} dates from HAE auto-import`);
+  } catch (err) {
+    console.warn('Could not load HAE auto-import data:', err);
+  }
+
+  healthData = mergeManualWithHae(manualData, haeData);
+
   const gSnap = await database.ref(`users/${currentUser.uid}/goals`).once('value');
   const fbGoals = gSnap.val();
   if (fbGoals) {
@@ -5339,7 +5440,15 @@ async function loadDataFromFirebase() {
 }
 async function saveDataToFirebase() {
   if (!currentUser) return;
-  await database.ref(`users/${currentUser.uid}/healthData`).set(healthData);
+  // IMPORTANT: only save manual entries (those without _source: 'hae').
+  // HAE-only entries live in /healthData/raw and would corrupt manual storage.
+  const manualOnly = healthData
+    .filter(e => e._source !== 'hae')
+    .map(e => {
+      const { _source, ...rest } = e; // strip the merge marker before persisting
+      return rest;
+    });
+  await database.ref(`users/${currentUser.uid}/healthData`).set(manualOnly);
 }
 async function saveGoalsToFirebase() {
   if (!currentUser) return;
