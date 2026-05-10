@@ -156,10 +156,10 @@
         .today-hero {
             background: linear-gradient(135deg, #0d2137 0%, #1a1f2e 100%);
             border: 1px solid var(--border-accent);
-            border-radius: 20px; padding: 20px; margin-bottom: 12px;
+            border-radius: 16px; padding: 14px 16px; margin-bottom: 12px;
         }
-        .hero-greeting { font-size: 0.85em; color: var(--text-secondary); margin-bottom: 4px; }
-        .hero-date { font-size: 1em; font-weight: 600; color: var(--text-primary); margin-bottom: 16px; }
+        .hero-greeting { font-size: 0.82em; color: var(--text-secondary); margin-bottom: 2px; }
+        .hero-date { font-size: 0.95em; font-weight: 600; color: var(--text-primary); }
 
         .hero-stat { }
         .hero-stat-label { font-size: 0.72em; color: var(--text-secondary); margin-bottom: 2px; }
@@ -351,7 +351,77 @@
         .projection-detail { font-size: 0.82em; color: var(--text-secondary); margin-bottom: 4px; }
         .projection-result { font-size: 1.05em; font-weight: 700; color: var(--accent); margin-top: 8px; }
 
-        /* RESPONSIVE: side-by-side on wider screens */
+        /* ── METRIC MODAL ── */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0; z-index: 500;
+            background: rgba(0,0,0,0.72);
+            align-items: center; justify-content: center;
+            padding: 16px;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            width: 94vw; height: 88vh;
+            display: flex; flex-direction: column;
+            overflow: hidden;
+            animation: modalIn 0.22s ease;
+        }
+        @keyframes modalIn {
+            from { opacity:0; transform: scale(0.96) translateY(12px); }
+            to   { opacity:1; transform: scale(1) translateY(0); }
+        }
+        .modal-header {
+            display: flex; align-items: flex-start; justify-content: space-between;
+            padding: 18px 18px 14px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .modal-title { font-size: 1.1em; font-weight: 700; color: var(--text-primary); }
+        .modal-meta { font-size: 0.8em; color: var(--text-secondary); margin-top: 2px; }
+        .modal-close {
+            width: 30px; height: 30px; border-radius: 50%;
+            background: var(--bg-elevated); border: 1px solid var(--border);
+            color: var(--text-secondary); font-size: 1em; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; margin-left: 12px; margin-top: -2px;
+        }
+        .modal-range-row {
+            display: flex; gap: 8px; padding: 12px 18px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .modal-range-btn {
+            flex: 1; padding: 7px 4px; border-radius: 8px; border: 1px solid var(--border);
+            background: var(--bg-elevated); color: var(--text-secondary);
+            font-size: 0.78em; font-weight: 500; cursor: pointer;
+            transition: all 0.15s;
+        }
+        .modal-range-btn.active {
+            background: var(--accent); border-color: var(--accent);
+            color: white;
+        }
+        .modal-chart-wrap {
+            flex: 1; padding: 16px 12px 12px;
+            position: relative; min-height: 0;
+        }
+        .modal-stats-row {
+            display: grid; grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px; padding: 0 18px 14px; flex-shrink: 0;
+        }
+        .modal-stat {
+            background: var(--bg-elevated); border-radius: 10px;
+            padding: 10px 12px; text-align: center;
+        }
+        .modal-stat-label { font-size: 0.65em; color: var(--text-muted); margin-bottom: 3px; font-weight: 500; }
+        .modal-stat-value { font-size: 1em; font-weight: 700; color: var(--text-primary); }
+
+        @media (min-width: 600px) {
+            .modal-card { width: 88vw; height: 82vh; }
+        }
+
+        /* ── RESPONSIVE: side-by-side on wider screens ── */
         @media (min-width: 600px) {
             .metric-grid { grid-template-columns: repeat(3, 1fr); }
             .summary-row { grid-template-columns: repeat(4, 1fr); }
@@ -468,49 +538,49 @@
       <!-- Metric Tiles -->
       <div class="section-title">Body Composition</div>
       <div class="metric-grid">
-        <div class="metric-tile metric-tile-accent">
+        <div class="metric-tile metric-tile-accent" onclick="openModal(\'weight\',\'Weight\',\'lbs\',\'#4d9de0\')" style="cursor:pointer">
           <div class="metric-tile-label">Weight</div>
           <div class="metric-tile-value" id="t-weight">--<span class="metric-tile-unit"> lbs</span></div>
           <div class="metric-tile-change" id="t-weight-c"></div>
           <div class="metric-tile-date" id="t-weight-d"></div>
           <div class="metric-tile-chart"><canvas id="c-weight"></canvas></div>
         </div>
-        <div class="metric-tile metric-tile-green">
+        <div class="metric-tile metric-tile-green" onclick="openModal(\'bodyFat\',\'Body Fat %\',\'%\',\'#4d9de0\')" style="cursor:pointer">
           <div class="metric-tile-label">Body Fat %</div>
           <div class="metric-tile-value" id="t-bodyfat">--</div>
           <div class="metric-tile-change" id="t-bodyfat-c"></div>
           <div class="metric-tile-date" id="t-bodyfat-d"></div>
           <div class="metric-tile-chart"><canvas id="c-bodyfat"></canvas></div>
         </div>
-        <div class="metric-tile metric-tile-orange">
+        <div class="metric-tile metric-tile-orange" onclick="openModal(\'leanMass\',\'Lean Mass\',\'lbs\',\'#3fb950\')" style="cursor:pointer">
           <div class="metric-tile-label">Lean Mass</div>
           <div class="metric-tile-value" id="t-lean">--<span class="metric-tile-unit"> lbs</span></div>
           <div class="metric-tile-change" id="t-lean-c"></div>
           <div class="metric-tile-date" id="t-lean-d"></div>
           <div class="metric-tile-chart"><canvas id="c-lean"></canvas></div>
         </div>
-        <div class="metric-tile metric-tile-purple">
+        <div class="metric-tile metric-tile-purple" onclick="openModal(\'visceralFat\',\'Visceral Fat\',\'\',\'#e07b4d\')" style="cursor:pointer">
           <div class="metric-tile-label">Visceral Fat</div>
           <div class="metric-tile-value" id="t-visceral">--</div>
           <div class="metric-tile-change" id="t-visceral-c"></div>
           <div class="metric-tile-date" id="t-visceral-d"></div>
           <div class="metric-tile-chart"><canvas id="c-visceral"></canvas></div>
         </div>
-        <div class="metric-tile metric-tile-accent">
+        <div class="metric-tile metric-tile-accent" onclick="openModal(\'waist\',\'Waist\',\'"\',\'#c678dd\')" style="cursor:pointer">
           <div class="metric-tile-label">Waist</div>
           <div class="metric-tile-value" id="t-waist">--<span class="metric-tile-unit">"</span></div>
           <div class="metric-tile-change" id="t-waist-c"></div>
           <div class="metric-tile-date" id="t-waist-d"></div>
           <div class="metric-tile-chart"><canvas id="c-waist"></canvas></div>
         </div>
-        <div class="metric-tile metric-tile-green">
+        <div class="metric-tile metric-tile-green" onclick="openModal(\'whr\',\'WHtR\',\'\',\'#4d9de0\')" style="cursor:pointer">
           <div class="metric-tile-label">WHtR</div>
           <div class="metric-tile-value" id="t-whtr">--</div>
           <div class="metric-tile-change" id="t-whtr-c"></div>
           <div class="metric-tile-date" id="t-whtr-d"></div>
           <div class="metric-tile-chart"><canvas id="c-whtr"></canvas></div>
         </div>
-        <div class="metric-tile metric-tile-orange">
+        <div class="metric-tile metric-tile-orange" onclick="openModal(\'metabolicAge\',\'Metabolic Age\',\'\',\'#3fb950\')" style="cursor:pointer">
           <div class="metric-tile-label">Metabolic Age</div>
           <div class="metric-tile-value" id="t-metage">--</div>
           <div class="metric-tile-change" id="t-metage-c"></div>
@@ -521,56 +591,56 @@
 
       <div class="section-title">Vitals & Activity</div>
       <div class="metric-grid">
-        <div class="metric-tile metric-tile-accent">
+        <div class="metric-tile metric-tile-accent" onclick="openModal(\'vo2max\',\'VO2 Max\',\'\',\'#4d9de0\')" style="cursor:pointer">
           <div class="metric-tile-label">VO2 Max</div>
           <div class="metric-tile-value" id="t-vo2">--</div>
           <div class="metric-tile-change" id="t-vo2-c"></div>
           <div class="metric-tile-date" id="t-vo2-d"></div>
           <div class="metric-tile-chart"><canvas id="c-vo2"></canvas></div>
         </div>
-        <div class="metric-tile metric-tile-green">
-          <div class="metric-tile-label">HRV</div>
-          <div class="metric-tile-value" id="t-hrv">--<span class="metric-tile-unit"> ms</span></div>
-          <div class="metric-tile-change" id="t-hrv-c"></div>
-          <div class="metric-tile-date" id="t-hrv-d"></div>
-          <div class="metric-tile-chart"><canvas id="c-hrv"></canvas></div>
-        </div>
-        <div class="metric-tile metric-tile-orange">
-          <div class="metric-tile-label">Steps</div>
-          <div class="metric-tile-value" id="t-steps">--</div>
-          <div class="metric-tile-change" id="t-steps-c"></div>
-          <div class="metric-tile-date" id="t-steps-d"></div>
-          <div class="metric-tile-chart"><canvas id="c-steps"></canvas></div>
-        </div>
-        <div class="metric-tile metric-tile-purple">
+        <div class="metric-tile metric-tile-green" onclick="openModal(\'exerciseMinutes\',\'Exercise Min\',\'min\',\'#3fb950\')" style="cursor:pointer">
           <div class="metric-tile-label">Exercise Min</div>
           <div class="metric-tile-value" id="t-exercise">--</div>
           <div class="metric-tile-change" id="t-exercise-c"></div>
           <div class="metric-tile-date" id="t-exercise-d"></div>
           <div class="metric-tile-chart"><canvas id="c-exercise"></canvas></div>
         </div>
-        <div class="metric-tile metric-tile-accent">
-          <div class="metric-tile-label">Sleep</div>
-          <div class="metric-tile-value" id="t-sleep">--</div>
-          <div class="metric-tile-change" id="t-sleep-c"></div>
-          <div class="metric-tile-date" id="t-sleep-d"></div>
-          <div class="metric-tile-chart"><canvas id="c-sleep"></canvas></div>
+        <div class="metric-tile metric-tile-orange" onclick="openModal(\'steps\',\'Steps\',\'\',\'#e07b4d\')" style="cursor:pointer">
+          <div class="metric-tile-label">Steps</div>
+          <div class="metric-tile-value" id="t-steps">--</div>
+          <div class="metric-tile-change" id="t-steps-c"></div>
+          <div class="metric-tile-date" id="t-steps-d"></div>
+          <div class="metric-tile-chart"><canvas id="c-steps"></canvas></div>
         </div>
-        <div class="metric-tile metric-tile-green">
-          <div class="metric-tile-label">Sleep Score</div>
-          <div class="metric-tile-value" id="t-sleepscore">--</div>
-          <div class="metric-tile-change" id="t-sleepscore-c"></div>
-          <div class="metric-tile-date" id="t-sleepscore-d"></div>
-          <div class="metric-tile-chart"><canvas id="c-sleepscore"></canvas></div>
-        </div>
-        <div class="metric-tile metric-tile-orange">
+        <div class="metric-tile metric-tile-purple" onclick="openModal(\'distance\',\'Distance\',\'mi\',\'#c678dd\')" style="cursor:pointer">
           <div class="metric-tile-label">Distance</div>
           <div class="metric-tile-value" id="t-distance">--<span class="metric-tile-unit"> mi</span></div>
           <div class="metric-tile-change" id="t-distance-c"></div>
           <div class="metric-tile-date" id="t-distance-d"></div>
           <div class="metric-tile-chart"><canvas id="c-distance"></canvas></div>
         </div>
-        <div class="metric-tile metric-tile-purple">
+        <div class="metric-tile metric-tile-accent" onclick="openModal(\'sleepHours\',\'Sleep\',\'hrs\',\'#4d9de0\')" style="cursor:pointer">
+          <div class="metric-tile-label">Sleep</div>
+          <div class="metric-tile-value" id="t-sleep">--</div>
+          <div class="metric-tile-change" id="t-sleep-c"></div>
+          <div class="metric-tile-date" id="t-sleep-d"></div>
+          <div class="metric-tile-chart"><canvas id="c-sleep"></canvas></div>
+        </div>
+        <div class="metric-tile metric-tile-green" onclick="openModal(\'sleepScore\',\'Sleep Score\',\'\',\'#3fb950\')" style="cursor:pointer">
+          <div class="metric-tile-label">Sleep Score</div>
+          <div class="metric-tile-value" id="t-sleepscore">--</div>
+          <div class="metric-tile-change" id="t-sleepscore-c"></div>
+          <div class="metric-tile-date" id="t-sleepscore-d"></div>
+          <div class="metric-tile-chart"><canvas id="c-sleepscore"></canvas></div>
+        </div>
+        <div class="metric-tile metric-tile-orange" onclick="openModal(\'hrv\',\'HRV\',\'ms\',\'#e07b4d\')" style="cursor:pointer">
+          <div class="metric-tile-label">HRV</div>
+          <div class="metric-tile-value" id="t-hrv">--<span class="metric-tile-unit"> ms</span></div>
+          <div class="metric-tile-change" id="t-hrv-c"></div>
+          <div class="metric-tile-date" id="t-hrv-d"></div>
+          <div class="metric-tile-chart"><canvas id="c-hrv"></canvas></div>
+        </div>
+        <div class="metric-tile metric-tile-purple" onclick="openModal(\'protein\',\'Protein\',\'g\',\'#c678dd\')" style="cursor:pointer">
           <div class="metric-tile-label">Protein</div>
           <div class="metric-tile-value" id="t-protein">--<span class="metric-tile-unit"> g</span></div>
           <div class="metric-tile-change" id="t-protein-c"></div>
@@ -743,6 +813,34 @@
       <span class="nav-icon">📋</span>Data
     </button>
   </nav>
+
+  <!-- Metric Modal -->
+  <div id="metric-modal" class="modal-overlay" onclick="handleModalOverlayClick(event)">
+    <div class="modal-card" id="modal-card">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" id="modal-title">--</div>
+          <div class="modal-meta" id="modal-meta"></div>
+        </div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-range-row">
+        <button class="modal-range-btn active" onclick="setModalRange(30, this)">30 Days</button>
+        <button class="modal-range-btn" onclick="setModalRange(90, this)">90 Days</button>
+        <button class="modal-range-btn" onclick="setModalRange(180, this)">6 Months</button>
+        <button class="modal-range-btn" onclick="setModalRange(0, this)">All Time</button>
+      </div>
+      <div class="modal-stats-row">
+        <div class="modal-stat"><div class="modal-stat-label">Current</div><div class="modal-stat-value" id="modal-current">--</div></div>
+        <div class="modal-stat"><div class="modal-stat-label">Average</div><div class="modal-stat-value" id="modal-avg">--</div></div>
+        <div class="modal-stat"><div class="modal-stat-label">Change</div><div class="modal-stat-value" id="modal-change">--</div></div>
+      </div>
+      <div class="modal-chart-wrap">
+        <canvas id="modal-chart"></canvas>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -5917,6 +6015,160 @@ function showMsg(id,msg,type) {
   if(!el)return;
   el.innerHTML=`<div class="msg-${type}">${msg}</div>`;
   setTimeout(()=>{el.innerHTML='';},3000);
+}
+
+// ── METRIC MODAL ──
+let modalChart = null;
+let modalState = { key: null, label: null, unit: null, color: null, days: 30 };
+
+function openModal(key, label, unit, color) {
+  modalState = { key, label, unit, color, days: 30 };
+  document.getElementById('metric-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  // Reset range buttons
+  document.querySelectorAll('.modal-range-btn').forEach((b,i) => b.classList.toggle('active', i===0));
+  renderModal();
+}
+
+function closeModal() {
+  document.getElementById('metric-modal').classList.remove('open');
+  document.body.style.overflow = '';
+  if (modalChart) { modalChart.destroy(); modalChart = null; }
+}
+
+function handleModalOverlayClick(e) {
+  if (e.target === document.getElementById('metric-modal')) closeModal();
+}
+
+function setModalRange(days, btn) {
+  modalState.days = days;
+  document.querySelectorAll('.modal-range-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderModal();
+}
+
+function renderModal() {
+  const { key, label, unit, color, days } = modalState;
+  const mnth = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  // Filter data for this key
+  const allValid = healthData.filter(d => d[key] != null && d[key] !== '');
+  if (!allValid.length) return;
+
+  let sliced = allValid;
+  if (days > 0) {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    sliced = allValid.filter(d => parseLocalDate(d.date) >= cutoff);
+    if (!sliced.length) sliced = allValid.slice(-days);
+  }
+
+  // Format values (sleep special case)
+  function fmtVal(v) {
+    if (key === 'sleepHours') {
+      const h = Math.floor(v), m = Math.round((v-h)*60);
+      return `${h}h ${m}m`;
+    }
+    if (key === 'whr') return v.toFixed(3);
+    if (key === 'steps') return Math.round(v).toLocaleString();
+    if (Number.isInteger(v)) return v;
+    return parseFloat(v.toFixed(1));
+  }
+
+  const values = sliced.map(d => d[key]);
+  const labels = sliced.map(d => {
+    const [y,mo,dy] = d.date.split('-').map(Number);
+    return `${mnth[mo-1]} ${dy}`;
+  });
+
+  // Stats
+  const current = values[values.length - 1];
+  const avg = values.reduce((a,b) => a+b, 0) / values.length;
+  const change = values.length > 1 ? current - values[0] : null;
+
+  document.getElementById('modal-title').textContent = label;
+  document.getElementById('modal-meta').textContent = `${sliced.length} data points`;
+  document.getElementById('modal-current').textContent = fmtVal(current) + (unit ? ' '+unit : '');
+  document.getElementById('modal-avg').textContent = fmtVal(avg) + (unit ? ' '+unit : '');
+  if (change !== null) {
+    const sign = change > 0 ? '+' : '';
+    document.getElementById('modal-change').textContent = sign + fmtVal(change) + (unit ? ' '+unit : '');
+    document.getElementById('modal-change').style.color = change === 0 ? 'var(--text-primary)' :
+      (['weight','bodyFat','visceralFat','whr','waist','metabolicAge'].includes(key))
+        ? (change < 0 ? 'var(--green)' : 'var(--red)')
+        : (change > 0 ? 'var(--green)' : 'var(--red)');
+  }
+
+  // Destroy old chart
+  if (modalChart) { modalChart.destroy(); modalChart = null; }
+
+  const canvas = document.getElementById('modal-chart');
+  const ctx = canvas.getContext('2d');
+
+  // Y axis formatting
+  const yCallback = (val) => {
+    if (key === 'sleepHours') return Math.floor(val)+'h';
+    if (key === 'steps') return (val/1000).toFixed(0)+'k';
+    if (key === 'whr') return val.toFixed(3);
+    return val;
+  };
+
+  modalChart = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data: values,
+        borderColor: color,
+        backgroundColor: color + '18',
+        tension: 0.35,
+        fill: true,
+        pointRadius: sliced.length <= 60 ? 3 : 0,
+        pointHoverRadius: 5,
+        pointBackgroundColor: color,
+        borderWidth: 2.5
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 300 },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(22,27,34,0.95)',
+          borderColor: 'rgba(255,255,255,0.12)',
+          borderWidth: 1,
+          titleColor: '#8b949e',
+          bodyColor: '#e6edf3',
+          padding: 10,
+          callbacks: {
+            label: ctx => ' ' + fmtVal(ctx.parsed.y) + (unit ? ' '+unit : '')
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: '#8b949e',
+            maxTicksLimit: 8,
+            maxRotation: 0,
+            font: { size: 11 }
+          },
+          grid: { color: 'rgba(255,255,255,0.05)' }
+        },
+        y: {
+          ticks: {
+            color: '#8b949e',
+            maxTicksLimit: 7,
+            font: { size: 11 },
+            callback: yCallback
+          },
+          grid: { color: 'rgba(255,255,255,0.05)' }
+        }
+      }
+    }
+  });
 }
 </script>
 </body>
