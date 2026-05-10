@@ -158,7 +158,7 @@
         }
         .hero-greeting { font-size: 0.85em; color: var(--text-secondary); margin-bottom: 4px; }
         .hero-date { font-size: 1em; font-weight: 600; color: var(--text-primary); margin-bottom: 16px; }
-        .hero-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
         .hero-stat { }
         .hero-stat-label { font-size: 0.72em; color: var(--text-secondary); margin-bottom: 2px; }
         .hero-stat-value { font-size: 1.6em; font-weight: 700; color: var(--text-primary); line-height: 1; }
@@ -424,28 +424,6 @@
       <div class="today-hero">
         <div class="hero-greeting">Good day, David 👋</div>
         <div class="hero-date" id="hero-date"></div>
-        <div class="hero-stats">
-          <div class="hero-stat">
-            <div class="hero-stat-label">Weight</div>
-            <div class="hero-stat-value" id="h-weight">--<span class="hero-stat-unit"> lbs</span></div>
-            <div class="hero-stat-delta" id="h-weight-d"></div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-label">VO2 Max</div>
-            <div class="hero-stat-value" id="h-vo2">--</div>
-            <div class="hero-stat-delta" id="h-vo2-d"></div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-label">Steps</div>
-            <div class="hero-stat-value" id="h-steps">--</div>
-            <div class="hero-stat-delta" id="h-steps-d"></div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-label">Sleep</div>
-            <div class="hero-stat-value" id="h-sleep">--</div>
-            <div class="hero-stat-delta" id="h-sleep-d"></div>
-          </div>
-        </div>
       </div>
 
       <!-- Period Summary Row -->
@@ -574,9 +552,22 @@
           <div class="metric-tile-chart"><canvas id="c-distance"></canvas></div>
         </div>
         <div class="metric-tile metric-tile-purple">
-          <div class="metric-tile-label">BP (latest)</div>
-          <div class="metric-tile-value" id="t-bp" style="font-size:1.2em">--</div>
-          <div class="metric-tile-date" id="t-bp-d"></div>
+          <div class="metric-tile-label">Distance</div>
+          <div class="metric-tile-value" id="t-distance">--<span class="metric-tile-unit"> mi</span></div>
+          <div class="metric-tile-change" id="t-distance-c"></div>
+          <div class="metric-tile-date" id="t-distance-d"></div>
+          <div class="metric-tile-chart"><canvas id="c-distance"></canvas></div>
+        </div>
+      </div>
+
+      <div class="section-title">Blood Pressure</div>
+      <div class="card" style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div class="card-title" style="margin-bottom:4px">Latest Reading</div>
+          <div style="font-size:2em;font-weight:700;color:var(--text-primary)" id="t-bp">--</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:0.72em;color:var(--text-muted)" id="t-bp-d"></div>
         </div>
       </div>
 
@@ -624,13 +615,6 @@
           </div>
           <div class="form-field"><label class="form-field-label">Sleep Score</label><input type="number" id="entry-sleepscore" class="form-field-input" step="1" min="0" max="100"></div>
           <div class="form-field"><label class="form-field-label">Protein (g)</label><input type="number" id="entry-protein" class="form-field-input" step="1"></div>
-        </div>
-      </div>
-
-      <div class="form-section">
-        <div class="form-section-header">📋 Notes</div>
-        <div style="padding:12px 16px">
-          <textarea id="entry-notes" class="form-field-input" style="width:100%;text-align:left;resize:vertical;min-height:72px;border-radius:8px" placeholder="Optional notes..."></textarea>
         </div>
       </div>
 
@@ -712,7 +696,7 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th>Date</th><th>Weight</th><th>BF%</th><th>Steps</th><th>VO2</th><th>Sleep</th><th></th>
+              <th>Date</th><th></th>
             </tr>
           </thead>
           <tbody id="data-table-body"></tbody>
@@ -5229,7 +5213,10 @@ function switchTab(name, el) {
   document.getElementById('panel-' + name).classList.add('active');
   if (el) el.classList.add('active');
   if (name === 'today') updateOverview();
-  if (name === 'log') document.getElementById('entry-date').valueAsDate = new Date();
+  if (name === 'log') {
+    document.getElementById('entry-date').valueAsDate = new Date();
+    loadEntryForDate(new Date().toISOString().split('T')[0]);
+  }
   if (name === 'dexa') { document.getElementById('dexa-date').valueAsDate = new Date(); updateDexaHistory(); }
   if (name === 'trends') updateTrends();
   if (name === 'data') updateDataTable();
@@ -5243,10 +5230,42 @@ function initApp() {
   document.getElementById('header-date').textContent = dateStr;
   document.getElementById('hero-date').textContent = dateStr;
   document.getElementById('entry-date').valueAsDate = now;
+  document.getElementById('entry-date').addEventListener('change', function() {
+    loadEntryForDate(this.value);
+  });
   document.getElementById('dexa-date').valueAsDate = now;
   loadGoals();
   updateOverview();
   updateDexaHistory();
+}
+
+// Load existing entry into Log form when date is selected
+function loadEntryForDate(date) {
+  const entry = healthData.find(e => e.date === date);
+  if (!entry) { clearDailyEntry(); return; }
+  document.getElementById('entry-weight').value = entry.weight || '';
+  document.getElementById('entry-bodyfat').value = entry.bodyFat || '';
+  document.getElementById('entry-leanmass').value = entry.leanMass || '';
+  document.getElementById('entry-visceral').value = entry.visceralFat || '';
+  document.getElementById('entry-waist').value = entry.waist || '';
+  document.getElementById('entry-metage').value = entry.metabolicAge || '';
+  document.getElementById('entry-sysbp').value = entry.sysBP || '';
+  document.getElementById('entry-diabp').value = entry.diaBP || '';
+  document.getElementById('entry-steps').value = entry.steps || '';
+  document.getElementById('entry-distance').value = entry.distance || '';
+  document.getElementById('entry-vo2max').value = entry.vo2max || '';
+  document.getElementById('entry-exercise').value = entry.exerciseMinutes || '';
+  document.getElementById('entry-hrv').value = entry.hrv || '';
+  if (entry.sleepHours) {
+    const h = Math.floor(entry.sleepHours), m = Math.round((entry.sleepHours - h) * 60);
+    document.getElementById('entry-sleep-hours').value = h;
+    document.getElementById('entry-sleep-minutes').value = m;
+  } else {
+    document.getElementById('entry-sleep-hours').value = '';
+    document.getElementById('entry-sleep-minutes').value = '';
+  }
+  document.getElementById('entry-sleepscore').value = entry.sleepScore || '';
+  document.getElementById('entry-protein').value = entry.protein || '';
 }
 
 // ── GOALS ──
@@ -5343,31 +5362,7 @@ function updateOverview() {
     periodData = validData.slice(-parseInt(period));
   }
 
-  // Hero stats
-  const rW = mostRecent(validData, 'weight');
-  const pW = rW ? validData[validData.indexOf(rW)-1] : null;
-  const fW = validData.find(d => d.weight);
-  document.getElementById('h-weight').innerHTML = rW?.weight ? `${rW.weight}<span class="hero-stat-unit"> lbs</span>` : '--';
-  document.getElementById('h-weight-d').innerHTML = fmtFromStart(rW?.weight, fW?.weight, true, ' lbs');
-
-  const rV = mostRecent(validData, 'vo2max');
-  const pV = rV ? validData[validData.indexOf(rV)-1] : null;
-  const fV = validData.find(d => d.vo2max);
-  document.getElementById('h-vo2').innerHTML = rV?.vo2max ? `${rV.vo2max}` : '--';
-  document.getElementById('h-vo2-d').innerHTML = fmtFromStart(rV?.vo2max, fV?.vo2max, false);
-
-  const rS = mostRecent(validData, 'steps');
-  const pS = rS ? validData[validData.indexOf(rS)-1] : null;
-  document.getElementById('h-steps').innerHTML = rS?.steps ? rS.steps.toLocaleString() : '--';
-  document.getElementById('h-steps-d').innerHTML = fmtChange(rS?.steps, pS?.steps, false);
-
-  const rSl = mostRecent(validData, 'sleepHours');
-  const pSl = rSl ? validData[validData.indexOf(rSl)-1] : null;
-  if (rSl?.sleepHours) {
-    const h = Math.floor(rSl.sleepHours), m = Math.round((rSl.sleepHours-h)*60);
-    document.getElementById('h-sleep').innerHTML = `${h}h ${m}m`;
-    document.getElementById('h-sleep-d').innerHTML = fmtChange(rSl.sleepHours, pSl?.sleepHours, false);
-  }
+  // (hero stats removed - metrics shown in tiles below)
 
   // Summary
   const stepsArr = periodData.filter(d => d.steps);
@@ -5392,6 +5387,10 @@ function updateOverview() {
   document.getElementById('t-bp').textContent = latestBP ? `${latestBP.sysBP}/${latestBP.diaBP}` : '--';
 
   // Goals
+  const fW = validData.find(d => d.weight);
+  const rW = mostRecent(validData, 'weight');
+  const fV = validData.find(d => d.vo2max);
+  const rV = mostRecent(validData, 'vo2max');
   const weightGoal = parseFloat(document.getElementById('weight-goal-input').value) || 235;
   if (fW?.weight && rW?.weight) {
     const total = fW.weight - weightGoal;
@@ -5716,15 +5715,13 @@ function updateDataTable() {
   else if(filter==='7'){const ago=new Date(today);ago.setDate(ago.getDate()-7);display=valid.filter(d=>parseLocalDate(d.date)>=ago);}
   const tbody=document.getElementById('data-table-body');
   document.getElementById('total-entries').textContent=healthData.length;
-  if(!display.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-muted)">No data</td></tr>';return;}
+  if(!display.length){tbody.innerHTML='<tr><td colspan="2" style="text-align:center;padding:20px;color:var(--text-muted)">No data</td></tr>';return;}
   tbody.innerHTML=[...display].reverse().map(entry=>{
     const idx=healthData.indexOf(entry);
     const dt=parseLocalDate(entry.date).toLocaleDateString();
-    const sl=entry.sleepHours?`${Math.floor(entry.sleepHours)}h ${Math.round((entry.sleepHours%1)*60)}m`:'--';
     return `<tr>
-      <td>${dt}</td><td>${entry.weight||'--'}</td><td>${entry.bodyFat||'--'}</td>
-      <td>${entry.steps?entry.steps.toLocaleString():'--'}</td><td>${entry.vo2max||'--'}</td><td>${sl}</td>
-      <td>
+      <td>${dt}</td>
+      <td style="text-align:right">
         <button class="tbl-btn tbl-btn-edit" onclick="editEntry('${entry.date}')">✏️</button>
         <button class="tbl-btn tbl-btn-del" onclick="deleteEntry(${idx})">🗑</button>
       </td>
@@ -5813,7 +5810,7 @@ async function saveDailyEntry() {
     hrv:parseInt(document.getElementById('entry-hrv').value)||null,
     sleepHours,sleepScore:parseInt(document.getElementById('entry-sleepscore').value)||null,
     protein:parseFloat(document.getElementById('entry-protein').value)||null,
-    notes:document.getElementById('entry-notes').value||''
+    notes:''
   };
   const ei=healthData.findIndex(e=>e.date===date);
   if(ei>=0){healthData[ei]=entry;showMsg('daily-message',`✓ Entry for ${date} updated!`,'success');}
@@ -5826,7 +5823,7 @@ async function saveDailyEntry() {
 function clearDailyEntry() {
   ['entry-weight','entry-bodyfat','entry-leanmass','entry-visceral','entry-waist','entry-metage',
    'entry-sysbp','entry-diabp','entry-steps','entry-distance','entry-vo2max','entry-exercise',
-   'entry-hrv','entry-sleep-hours','entry-sleep-minutes','entry-sleepscore','entry-protein','entry-notes']
+   'entry-hrv','entry-sleep-hours','entry-sleep-minutes','entry-sleepscore','entry-protein']
   .forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
 }
 function editEntry(date) {
@@ -5850,7 +5847,6 @@ function editEntry(date) {
   if(entry.sleepHours){const h=Math.floor(entry.sleepHours),m=Math.round((entry.sleepHours-h)*60);document.getElementById('entry-sleep-hours').value=h;document.getElementById('entry-sleep-minutes').value=m;}
   document.getElementById('entry-sleepscore').value=entry.sleepScore||'';
   document.getElementById('entry-protein').value=entry.protein||'';
-  document.getElementById('entry-notes').value=entry.notes||'';
   window.scrollTo({top:0,behavior:'smooth'});
 }
 async function deleteEntry(idx) {
