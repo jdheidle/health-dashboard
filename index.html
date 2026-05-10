@@ -178,12 +178,13 @@
         .metric-tile-green { border-left: 3px solid var(--green); }
         .metric-tile-orange { border-left: 3px solid var(--accent3); }
         .metric-tile-purple { border-left: 3px solid var(--accent4); }
-        .metric-tile-label { font-size: 0.72em; color: var(--text-secondary); margin-bottom: 6px; font-weight: 500; }
-        .metric-tile-value { font-size: 1.7em; font-weight: 700; color: var(--text-primary); line-height: 1.1; }
-        .metric-tile-unit { font-size: 0.75em; color: var(--text-secondary); font-weight: 400; }
-        .metric-tile-change { font-size: 0.72em; margin-top: 4px; }
-        .metric-tile-date { font-size: 0.65em; color: var(--text-muted); margin-top: 2px; }
+        .metric-tile-label { font-size: 0.72em; color: var(--text-secondary); margin-bottom: 6px; font-weight: 500; pointer-events: none; }
+        .metric-tile-value { font-size: 1.7em; font-weight: 700; color: var(--text-primary); line-height: 1.1; pointer-events: none; }
+        .metric-tile-unit { font-size: 0.75em; color: var(--text-secondary); font-weight: 400; pointer-events: none; }
+        .metric-tile-change { font-size: 0.72em; margin-top: 4px; pointer-events: none; }
+        .metric-tile-date { font-size: 0.65em; color: var(--text-muted); margin-top: 2px; pointer-events: none; }
         .metric-tile-chart { height: 44px; margin-top: 8px; }
+        .metric-tile-chart canvas { pointer-events: none; }
         .up-good { color: var(--green); }
         .down-good { color: var(--green); }
         .up-bad { color: var(--red); }
